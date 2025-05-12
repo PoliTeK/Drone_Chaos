@@ -1,6 +1,8 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
 
+#include "vecmath.hpp"
+
 using namespace daisy;
 using namespace daisysp;
 
@@ -21,5 +23,9 @@ int main(void)
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	hw.StartAudio(AudioCallback);
+
+	math::vec3f test1{10.0f, -1.0f, 2.4f}, test2{0.1f, 2.0f, -0.7f};
+	test1 + test2;
+
 	while(1) {}
 }

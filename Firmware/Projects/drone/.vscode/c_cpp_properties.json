@@ -3,14 +3,13 @@
     {
       "cStandard": "c11",
       "compilerPath": "arm-none-eabi-g++.exe",
-      "cppStandard": "c++17",
+      "cppStandard": "c++14",
       "defines": [
         "_DEBUG",
         "UNICODE",
         "_UNICODE"
       ],
       "includePath": [
-        "${workspaceFolder}/**",
         "${workspaceFolder}/../../libDaisy//**",
         "${workspaceFolder}/../../DaisySP//**"
       ],
@@ -20,7 +19,7 @@
     {
       "cStandard": "c11",
       "compilerPath": "/usr/local/bin/arm-none-eabi-g++",
-      "cppStandard": "c++17",
+      "cppStandard": "c++14",
       "defines": [
         "_DEBUG",
         "UNICODE",
