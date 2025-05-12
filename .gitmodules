@@ -1,0 +1,9 @@
+[submodule "Firmware/DaisySP"]
+	path = Firmware/DaisySP
+	url = https://github.com/electro-smith/DaisySP.git
+[submodule "Firmware/libDaisy"]
+	path = Firmware/libDaisy
+	url = https://github.com/electro-smith/libDaisy.git
+[submodule "Firmware/stmlib"]
+	path = Firmware/stmlib
+	url = https://github.com/pichenettes/stmlib.git
