@@ -2,7 +2,7 @@
 TARGET = drone
 
 # Sources
-CPP_SOURCES = drone.cpp
+CPP_SOURCES = drone.cpp math/models.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

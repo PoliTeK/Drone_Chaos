@@ -1,7 +1,7 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
 
-#include "vecmath.hpp"
+#include "math/models.hpp"
 
 using namespace daisy;
 using namespace daisysp;
@@ -26,6 +26,9 @@ int main(void)
 
 	math::vec3f test1{10.0f, -1.0f, 2.4f}, test2{0.1f, 2.0f, -0.7f};
 	test1 + test2;
+
+	math::Henon henz;
+	auto x1 = henz.step({0.1, 0.3});
 
 	while(1) {}
 }

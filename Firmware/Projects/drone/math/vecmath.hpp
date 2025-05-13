@@ -186,7 +186,6 @@ namespace math {
             }
         }
 
-
         T& operator[](size_t i) {
             // assert(i < N && "index exceeds point size");
             return e[i];
@@ -228,18 +227,17 @@ namespace math {
         }
 
         // convenience x,y,z,w functions
+        template<size_t M = N>
+        std::enable_if_t<(M >= 1), T> x() const { return e[0]; }
 
-        template<size_t M = N, std::enable_if_t<(M >= 1), bool> = true>
-        T x() { return e[0]; }
+        template<size_t M = N>
+        std::enable_if_t<(M >= 2), T> y() const { return e[1]; }
 
-        template<size_t M = N, std::enable_if_t<(M >= 2), bool> = true>
-        T y() { return e[1]; }
+        template<size_t M = N>
+        std::enable_if_t<(M >= 3), T> z() const { return e[2]; }
 
-        template<size_t M = N, std::enable_if_t<(M >= 3), bool> = true>
-        T z() { return e[2]; }
-
-        template<size_t M = N, std::enable_if_t<(M >= 4), bool> = true>
-        T w() { return e[3]; }
+        template<size_t M = N>
+        std::enable_if_t<(M >= 4), T> w() const { return e[3]; }
     };
 
 
@@ -273,4 +271,5 @@ namespace math {
         }
         return zero;
     }
+    
 }
