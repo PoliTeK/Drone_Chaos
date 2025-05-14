@@ -21,7 +21,8 @@ namespace math {
         /**
          * For discrete models, step() returns the next state.
          * For continuous models, step() returns the derivative of the state
-         * vector, which must be integrated (e.g. using RK4 or explicit Euler)
+         * vector, which has be integrated (e.g. using RK4 or explicit Euler)
+         * to get a trajectory in the state space.
          */
         virtual T step(T pos) const = 0;
     };

@@ -18,7 +18,7 @@ namespace math {
         return m1 * x + 0.5f * (m0 - m1) * (fabs(x + 1) - fabs(x - 1));
     }
 
-    vec3f Chua::step(vec<3, float> pos) const {
+    vec3f Chua::step(vec3f pos) const {
         return {
             alpha * (pos.y() - pos.x() - chua_diode(pos.x())),
             pos.x() - pos.y() + pos.z(),
