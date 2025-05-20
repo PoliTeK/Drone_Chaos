@@ -7,7 +7,7 @@ namespace math {
 
     vec2f Henon::step(vec2f pos) const {
         return {
-            1 - a*pos.x() + pos.y(),
+            1 - a*pos.x()*pos.x() + pos.y(),
             b*pos.x()
         };
     }
@@ -25,5 +25,20 @@ namespace math {
             -beta * pos.y()
         };
     }
-
+     
+    vec3f Lorentz::step(vec<3, float> pos) const {
+        return {
+            sigma * (pos.y() - pos.x()),
+            pos.x() * (rho - pos.z()) - pos.y(),
+            pos.x() * pos.y() - beta * pos.z()
+        };
+    }
+        vec2f Ikeda::step(vec2f pos) const {
+            float r2 = sqrt(pos.x()) +sqrt(pos.y());
+            float theta = k - p / (1 + r2);
+        return {
+            1 + u * (pos.x()*cosf(theta) - pos.y()*sinf(theta)),
+            u * (pos.x()*sinf(theta) + pos.y()*cosf(theta))
+        };
+    }
 }

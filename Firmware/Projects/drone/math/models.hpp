@@ -66,5 +66,22 @@ namespace math {
 
         return x + dt * (k1 + 2.0f * k2 + 2.0f * k3 + k4) / 6.0f;
     }
+     class Lorentz : ChaoticModel<vec3f>
+    {
+    public:
+    float rho = 10;
+    float sigma = 10;
+    float beta = 8/3;
 
+    vec3f step(vec3f step) const override;
+    };
+        class Ikeda : ChaoticModel<vec2f>
+    {
+    public:
+        float u = 0.9;
+        float k = 0.4;
+        float p = 6.0;
+
+        vec2f step(vec2f step) const override;
+    };
 }
