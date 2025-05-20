@@ -58,7 +58,9 @@ namespace math {
         virtual T gradient(T pos) const = 0;
 
         virtual void step(T pos) override {
-            state = rk4(state, gradient, dt);
+            // auto grad = std::bind(&ContinuousModel<T>::gradient, this, std::placeholders::_1);
+            // auto grad = [this](T pos) { return this->gradient(pos); };
+            // this->state = rk4(this->state, grad, dt);
         }
     };
 

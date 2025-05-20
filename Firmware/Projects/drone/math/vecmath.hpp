@@ -46,7 +46,6 @@ namespace math {
             return e[i];
         }
 
-
         vec operator+(vec that) const {
             vec res;
             for (size_t i = 0; i < N; i++) {
