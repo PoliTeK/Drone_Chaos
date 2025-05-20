@@ -1,12 +1,14 @@
 # Project Name
-TARGET = drone
+TARGET := drone
 
 # Sources
-CPP_SOURCES = drone.cpp math/models.cpp
+CPP_SOURCES := drone.cpp math/models.cpp
 
 # Library Locations
-LIBDAISY_DIR = ../../libDaisy/
-DAISYSP_DIR = ../../DaisySP/
+LIBDAISY_DIR := ../../libDaisy/
+DAISYSP_DIR := ../../DaisySP/
+
+CPP_STANDARD := -std=gnu++17
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core

@@ -29,24 +29,70 @@ namespace math {
         return x;
     }
 
-    // vectors
+    namespace _internal {
+        template<size_t N, class T>
+        struct raw_vec {
+        public:
+            T e[N];
+            
+            constexpr raw_vec() = default;
+
+            // Constructor taking exactly N arguments of type T
+            template <typename... Args,
+                    typename = std::enable_if_t<sizeof...(Args) == N &&
+                                                (std::conjunction_v<std::is_convertible<Args, T>...>)>>
+            constexpr raw_vec(Args&&... args) : e{ static_cast<T>(std::forward<Args>(args))... } {}
+
+
+            T& operator[](size_t i) {
+                return e[i];
+            }
+
+            const T& operator[](size_t i) const {
+                return e[i];
+            }
+
+            // convenience x,y,z,w functions
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 1), T&> x() { return e[0]; }
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 1), const T&> x() const { return e[0]; }
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 1), T&> y() { return e[0]; }
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 2), const T&> y() const { return e[1]; }
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 1), T&> z() { return e[0]; }
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 3), const T&> z() const { return e[2]; }
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 1), T&> w() { return e[0]; }
+
+            template<size_t M = N>
+            std::enable_if_t<(M >= 4), const T&> w() const { return e[3]; }
+        };
+
+    };
 
     template<size_t N, class T>
-    struct vec {
-    public:
-        T e[N];
-
+    struct vec : public _internal::raw_vec<N, T> {
         static constexpr size_t size() { return N; }
 
-        T& operator[](size_t i) {
-            // assert(i < N && "index exceeds vector size");
-            return e[i];
-        }
+        constexpr vec() = default;
 
-        const T& operator[](size_t i) const {
-            // assert(i < N && "index exceeds vector size");
-            return e[i];
-        }
+        // Constructor taking exactly N arguments of type T
+        template <typename... Args,
+                typename = std::enable_if_t<sizeof...(Args) == N &&
+                                            (std::conjunction_v<std::is_convertible<Args, T>...>)>>
+        constexpr vec(Args&&... args) : _internal::raw_vec<N, T>( static_cast<T>(std::forward<Args>(args))... ) {}
+
 
         vec operator+(vec that) const {
             vec res;
@@ -95,22 +141,7 @@ namespace math {
         vec normalized() const {
             return *this / length();
         }
-
-        // convenience x,y,z,w functions
-
-        template<size_t M = N>
-        std::enable_if_t<(M >= 1), T> x() const { return e[0]; }
-
-        template<size_t M = N>
-        std::enable_if_t<(M >= 2), T> y() const { return e[1]; }
-
-        template<size_t M = N>
-        std::enable_if_t<(M >= 3), T> z() const { return e[2]; }
-
-        template<size_t M = N>
-        std::enable_if_t<(M >= 4), T> w() const { return e[3]; }
     };
-
 
     template<size_t N, class T>
     void operator+=(vec<N, T>& a, vec<N, T> b) {
@@ -148,21 +179,18 @@ namespace math {
 
 
     template<size_t N, class T>
-    struct point {
-    public:
-        T e[N];
+    struct point : public _internal::raw_vec<N, T> {
+        static constexpr size_t size() { return N; }
 
-        T& operator[](size_t i) {
-            // assert(i < N && "index exceeds point size");
-            return e[i];
-        }
+        constexpr point() = default;
 
-        const T& operator[](size_t i) const {
-            // assert(i < N && "index exceeds point size");
-            return e[i];
-        }
+        // Constructor taking exactly N arguments of type T
+        template <typename... Args,
+                typename = std::enable_if_t<sizeof...(Args) == N &&
+                                            (std::conjunction_v<std::is_convertible<Args, T>...>)>>
+        constexpr point(Args&&... args) : _internal::raw_vec<N, T>( static_cast<T>(std::forward<Args>(args))... ) {}
 
-        
+
         point operator+(vec<N, T> v) const {
             point res;
             for (size_t i = 0; i < N; i++) {
@@ -183,29 +211,16 @@ namespace math {
             return res;
         }
 
-
         explicit operator vec<N, T>() const {
             vec<N, T> v;
             for (size_t i = 0; i < N; i++) {
-                v[i] = e[i];
+                v[i] = (*this)[i];
             }
             return v;
         }
-
-        // convenience x,y,z,w functions
-        template<size_t M = N>
-        std::enable_if_t<(M >= 1), T> x() const { return e[0]; }
-
-        template<size_t M = N>
-        std::enable_if_t<(M >= 2), T> y() const { return e[1]; }
-
-        template<size_t M = N>
-        std::enable_if_t<(M >= 3), T> z() const { return e[2]; }
-
-        template<size_t M = N>
-        std::enable_if_t<(M >= 4), T> w() const { return e[3]; }
     };
 
+    // Useful type definitions
 
     using vec2i = vec<2, uint32_t>;
     using vec2f = vec<2, float>;
@@ -221,13 +236,12 @@ namespace math {
     using point4i = point<4, uint32_t>;
     using point4f = point<4, float>;
 
-    //
+    // Other math
 
     template<size_t N, class T>
     vec<N, T> lerp(T t, vec<N, T> from, vec<N, T> to) {
         return from + t * (to - from);
     }
-
 
     template<size_t N>
     bool is_zero(vec<N, float> v, float eta = 1e-8) {
