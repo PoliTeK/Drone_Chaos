@@ -36,6 +36,8 @@ namespace math {
     public:
         T e[N];
 
+        static constexpr size_t size() { return N; }
+
         T& operator[](size_t i) {
             // assert(i < N && "index exceeds vector size");
             return e[i];

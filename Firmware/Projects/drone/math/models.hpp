@@ -38,9 +38,11 @@ namespace math {
         virtual ~ChaoticModel() {};
 
         /**
+         * @brief Advances the system by a time step.
+         * 
          * For both continuous and discrete models, step() computes the next state.
          */
-        virtual void step(T pos) = 0;
+        virtual void step(T state) = 0;
     };
 
     template<class T>
@@ -49,18 +51,19 @@ namespace math {
         float dt = DT_DEFAULT;
 
         /**
-         * @brief Calculates the derivative of the vector state at a point.
+         * @brief Calculates the gradient of the state vector at a point.
          * 
-         * For continuous models, `gradient()` returns the derivative of the
-         * state vector at some point, which has be integrated (e.g. using RK4
-         * or explicit Euler) to get a trajectory in the state space.
+         * To compute the trajectory of the system, this gradient has to be
+         * integrated (e.g. using RK4 or explicit Euler).
          */
-        virtual T gradient(T pos) const = 0;
+        virtual T gradient(T state) const = 0;
 
-        virtual void step(T pos) override {
-            // auto grad = std::bind(&ContinuousModel<T>::gradient, this, std::placeholders::_1);
-            // auto grad = [this](T pos) { return this->gradient(pos); };
-            // this->state = rk4(this->state, grad, dt);
+        virtual void step(T state) override {
+            auto grad = [this](T state) {
+                return this->gradient(state);
+            };
+
+            this->state = rk4<T::size()>(this->state, grad, dt);
         }
     };
 
@@ -74,7 +77,7 @@ namespace math {
         float a = 1.14;
         float b = 0.3;
 
-        void step(vec2f pos) override;
+        void step(vec2f state) override;
     };
 
     /**
@@ -87,7 +90,7 @@ namespace math {
         float alpha = 18.39f, beta = 39.0f, m0 = -1.143, m1 = -0.714;
 
         float chua_diode(float x) const;
-        vec3f gradient(vec3f pos) const override;
+        vec3f gradient(vec3f state) const override;
     };
 
     class Sprott : public ContinuousModel<vec3f>
@@ -122,7 +125,7 @@ namespace math {
         float sigma = 10;
         float beta = 8.f/3.f;
 
-        vec3f gradient(vec3f step) const override;
+        vec3f gradient(vec3f) const override;
     };
 
     class Ikeda : public ChaoticModel<vec2f>
@@ -132,6 +135,6 @@ namespace math {
         float k = 0.4;
         float p = 6.0;
 
-        void step(vec2f step) override;
+        void step(vec2f) override;
     };
 }
