@@ -4,16 +4,16 @@
 
 namespace math {
     // Henon
-    vec2f Henon::step(vec2f pos) const {
+    void Henon::step(vec2f pos) {
         float x = pos.x(), y = pos.y();
-        return {
+        state = vec2f{
             1 - a*x + y,
             b*x,
         };
     }
 
     // Chua
-    vec3f Chua::step(vec3f pos) const {
+    vec3f Chua::gradient(vec3f pos) const {
         float x = pos.x(), y = pos.y(), z = pos.z();
         return {
             alpha * (y - x - chua_diode(x)),
@@ -27,7 +27,7 @@ namespace math {
     }
 
     // Sprott
-    vec3f Sprott::step(vec3f pos) const {
+    vec3f Sprott::gradient(vec3f pos) const {
         float x = pos.x(), y = pos.y(), z = pos.z();
         return {
             y + a*x*y + x*z,
@@ -36,7 +36,7 @@ namespace math {
         };
     }
      
-    vec3f Lorentz::step(vec<3, float> pos) const {
+    vec3f Lorentz::gradient(vec<3, float> pos) const {
         return {
             sigma * (pos.y() - pos.x()),
             pos.x() * (rho - pos.z()) - pos.y(),
@@ -44,17 +44,17 @@ namespace math {
         };
     }
 
-    vec2f Ikeda::step(vec2f pos) const {
-        float r2 = sqrt(pos.x()) +sqrt(pos.y());
+    void Ikeda::step(vec2f pos) {
+        float r2 = sqrt(pos.x()) + sqrt(pos.y());
         float theta = k - p / (1 + r2);
-        return {
+        state = {
             1 + u * (pos.x()*cosf(theta) - pos.y()*sinf(theta)),
             u * (pos.x()*sinf(theta) + pos.y()*cosf(theta))
         };
     }
 
     // Rössler
-    vec3f Rossler::step(vec3f pos) const {
+    vec3f Rossler::gradient(vec3f pos) const {
         float x = pos.x(), y = pos.y(), z = pos.z();
         return {
             -y - z,
@@ -64,7 +64,7 @@ namespace math {
     }
 
     // Halvorsen
-    vec3f Halvorsen::step(vec3f pos) const {
+    vec3f Halvorsen::gradient(vec3f pos) const {
         float x = pos.x(), y = pos.y(), z = pos.z();
         return {
             -a*x - 4*(y + z) - y*y,
