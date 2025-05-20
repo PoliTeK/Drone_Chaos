@@ -36,24 +36,6 @@ namespace math {
     public:
         T e[N];
 
-    public:
-        vec() : vec(0) {}
-
-        vec(T x) {
-            for (size_t i = 0; i < N; i++) {
-                e[i] = x;
-            }
-        }
-
-        vec(std::initializer_list<T> list) {
-            size_t i = 0;
-            for (T v : list) {
-                e[i] = v;
-                i++;
-            }
-        }
-
-
         T& operator[](size_t i) {
             // assert(i < N && "index exceeds vector size");
             return e[i];
@@ -168,23 +150,6 @@ namespace math {
     struct point {
     public:
         T e[N];
-
-    public:
-        point() : point(0) {}
-
-        point(T x) {
-            for (size_t i = 0; i < N; i++) {
-                e[i] = x;
-            }
-        }
-
-        point(std::initializer_list<T> list) {
-            size_t i = 0;
-            for (T v : list) {
-                e[i] = v;
-                i++;
-            }
-        }
 
         T& operator[](size_t i) {
             // assert(i < N && "index exceeds point size");

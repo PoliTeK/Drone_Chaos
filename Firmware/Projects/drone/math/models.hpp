@@ -11,7 +11,7 @@ namespace math {
      * Both discrete and continuous models extend this class, providing
      * an implementation for `step()`.
      * 
-     * @tparam T type of the internal state (e.g. `vec3f`)
+     * @tparam T type of the internal state (e.g. `vec<3, float>`, `double`, etc.)
      */
     template<class T>
     class ChaoticModel {
@@ -37,7 +37,7 @@ namespace math {
         float a = 1.14;
         float b = 0.3;
 
-        vec2f step(vec2f step) const override;
+        vec2f step(vec2f pos) const override;
     };
 
     /**
@@ -52,6 +52,31 @@ namespace math {
         float chua_diode(float x) const;
         vec3f step(vec3f pos) const override;
     };
+
+    class Sprott : ChaoticModel<vec3f>
+    {
+    public:
+        float a = 2.07, b = 1.79;
+
+        vec3f step(vec3f) const override;
+    };
+
+    class Rossler : ChaoticModel<vec3f>
+    {
+    public:
+        float a = 0.2, b = 0.2, c = 5.7;
+
+        vec3f step(vec3f) const override;
+    };
+
+    class Halvorsen : ChaoticModel<vec3f>
+    {
+    public:
+        float a = 1.89;
+
+        vec3f step(vec3f) const override;
+    };
+
 
     /**
      * @brief Runge-Kutta 4 implementation for N-valued float vectors.
