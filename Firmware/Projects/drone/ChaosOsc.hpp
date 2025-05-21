@@ -3,7 +3,7 @@
 #include "daisysp.h"
 
 template<class T>
-class CaosOsc
+class ChaosOsc
 {
 private:
     enum
@@ -20,12 +20,12 @@ private:
     uint16_t _endTikc;
 public:
     
-    CaosOsc(ChaoticModel<T> model, TimerHandle timer)
+    ChaosOsc(ChaoticModel<T> model, TimerHandle timer)
     {
         _model = &model;
         _timer = &timer;
     }
-    ~CaosOsc();
+    ~ChaosOsc();
     void setState(T state)
     {
         _model->state = state;
