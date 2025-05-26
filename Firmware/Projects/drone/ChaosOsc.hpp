@@ -1,65 +1,56 @@
-#include "math/models.hpp"
+#pragma once
+
 #include "daisy_seed.h"
 #include "daisysp.h"
+#include "math/models.hpp"
 
-template<class T>
-class ChaosOsc
-{
-private:
-    enum
-    {
-        x,
-        y,
-        z,
-        w,
-    };
-    ChaoticModel<T> *_model;
-    TimerHandle *_timer;
-    uint16_t _startTick;
-    uint16_t _waitTick;
-    uint16_t _endTikc;
-public:
-    
-    ChaosOsc(ChaoticModel<T> model, TimerHandle timer)
-    {
-        _model = &model;
-        _timer = &timer;
-    }
-    ~ChaosOsc();
-    void setState(T state)
-    {
-        _model->state = state;
-    }
-    float get(uint8_t i)
-    {
-        return _model->state[i];
-    }
-    void init()
-    {
-        _startTick = timer->getTick();   
-    }
-    void setFrequency(float freq)
-    {
-        _waitTick = (float)_timer->getFreq()/ freq;
-    }
-    void play()
-    {
-        _endTikc = _startTick + _waitTick;
-        if (_endTikc > _startTick)
+namespace chaosdrone {
+
+    template<class T>
+    struct ChaosOsc {
+    private:
+        uint32_t _startTick;
+        uint32_t _waitTick;
+        uint32_t _endTick;
+
+    public:
+        math::ChaoticModel<T> model;
+        T model_state;
+        daisy::TimerHandle timer;
+        
+        ChaosOsc(math::ChaoticModel<T> model, daisy::TimerHandle timer)
+            : model(model), timer(timer) {}
+
+        void init()
         {
-              if(_timer->getTick() - > _endTikc)
-        {
-            _model->step(_model->state);
-            _startTick = _timer->getTick();
+            _startTick = timer.GetTick();
         }
-        }
-        if(_endTikc < _startTick)
+
+        void setFrequency(float freq)
         {
-            if (_timer->getTick() < _endTikc)
+            _waitTick = (float) timer.GetFreq() / freq;
+        }
+
+        void play()
+        {
+            _endTick = _startTick + _waitTick;
+            if (_endTick > _startTick)
             {
-                _model->step(_model->state);
-                _startTick = _timer->getTick();
+                if(timer.GetTick() > _endTick)
+            {
+                model.step(model.state);
+                _startTick = timer.GetTick();
             }
-        } 
-    }
-};
+            }
+            if(_endTick < _startTick)
+            {
+                if (timer.GetTick() < _endTick)
+                {
+                    model.step(model.state);
+                    _startTick = timer.GetTick();
+                }
+            } 
+        }
+    };
+
+}

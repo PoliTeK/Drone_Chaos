@@ -2,6 +2,7 @@
 #include "daisysp.h"
 
 #include "math/models.hpp"
+#include "ChaosOsc.hpp"
 
 using namespace daisy;
 using namespace daisysp;
@@ -10,10 +11,19 @@ DaisySeed hw;
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
+	using namespace math;
+
+	static Rossler model;
+	static vec3f state;
+
 	for (size_t i = 0; i < size; i++)
 	{
-		out[0][i] = in[0][i];
-		out[1][i] = in[1][i];
+		vec3f next = model.step(state);
+		state = next;
+		float val = state.z();
+
+		out[0][i] = val;
+		out[1][i] = val;
 	}
 }
 
