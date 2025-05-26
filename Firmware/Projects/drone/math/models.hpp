@@ -24,31 +24,43 @@ namespace math {
     }
 
     /**
-     * Chaotic model virtual class
+     * @brief Chaotic model interface
      * Both discrete and continuous models extend this class, providing
      * an implementation for `step()`.
      * 
-     * @tparam T type of the internal state (e.g. `vec<3, float>`, `double`, etc.)
+     * @tparam T type of the internal state (e.g. `vec<3, float>`, `vec<2, double>`, etc.);
+     * T must provide a `constexpr size()` for the default implementation of `step()` and a
+     * `T::Base` type (the underlying component type).
      */
     template<class T>
     class ChaoticModel {
     public:
-        T state;
-
         virtual ~ChaoticModel() {};
 
         /**
          * @brief Advances the system by a time step.
          * 
-         * For both continuous and discrete models, step() computes the next state.
+         * For both continuous and discrete models, `step()` computes the next state.
          */
-        virtual void step(T state) = 0;
+        virtual T step(T state) const = 0;
     };
 
+    /**
+     * @brief Continuous chaotic model interface
+     * 
+     * Classes which implement this interface need to provide an implementation for `gradient()`;
+     * `step()` computes the next step using the gradient. This interface provides a default
+     * implementation for `step()`.
+     * 
+     * @tparam T type of the internal state (e.g. `vec<3, float>`, `vec<2, double>`, etc.);
+     * T must provide a `constexpr size()` for the default implementation of `step()` and a
+     * `T::Base` type (the underlying component type).
+     */
     template<class T>
     class ContinuousModel : public ChaoticModel<T> {
     public:
-        float dt = DT_DEFAULT;
+        /** Time step used for integration */
+        typename T::Base dt = DT_DEFAULT;
 
         /**
          * @brief Calculates the gradient of the state vector at a point.
@@ -58,14 +70,19 @@ namespace math {
          */
         virtual T gradient(T state) const = 0;
 
-        virtual void step(T state) override {
+        /**
+         * @brief Integrates `gradient()` using Runge-Kutta 4 by default
+         */
+        virtual T step(T state) const override {
             auto grad = [this](T state) {
                 return this->gradient(state);
             };
 
-            this->state = rk4<T::size()>(this->state, grad, dt);
+            return rk4<T::size()>(state, grad, dt);
         }
     };
+
+    // -- Discrete oscillators --
 
     /**
      * Henon oscillator (discrete, 2D)
@@ -77,8 +94,20 @@ namespace math {
         float a = 1.14;
         float b = 0.3;
 
-        void step(vec2f state) override;
+        vec2f step(vec2f state) const override;
     };
+
+    class Ikeda : public ChaoticModel<vec2f>
+    {
+    public:
+        float u = 0.9;
+        float k = 0.4;
+        float p = 6.0;
+
+        vec2f step(vec2f) const override;
+    };
+
+    // -- Continuous oscillators --
 
     /**
      * Chua oscillator (continuous, 3D)
@@ -117,7 +146,6 @@ namespace math {
         vec3f gradient(vec3f) const override;
     };
 
-
     class Lorentz : public ContinuousModel<vec3f>
     {
     public:
@@ -126,15 +154,5 @@ namespace math {
         float beta = 8.f/3.f;
 
         vec3f gradient(vec3f) const override;
-    };
-
-    class Ikeda : public ChaoticModel<vec2f>
-    {
-    public:
-        float u = 0.9;
-        float k = 0.4;
-        float p = 6.0;
-
-        void step(vec2f) override;
     };
 }

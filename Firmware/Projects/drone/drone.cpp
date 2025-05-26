@@ -31,6 +31,10 @@ int main(void)
 	henz.step({0.1, 0.3});
 
 	math::Halvorsen halv;
+	(void) halv;
+
+	math::vec<3, double>::Base a;
+	(void) a;
 
 	while(1) {}
 }

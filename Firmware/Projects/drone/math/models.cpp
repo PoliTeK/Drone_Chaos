@@ -4,9 +4,9 @@
 
 namespace math {
     // Henon
-    void Henon::step(vec2f pos) {
+    vec2f Henon::step(vec2f pos) const {
         float x = pos.x(), y = pos.y();
-        state = vec2f{
+        return {
             1 - a*x + y,
             b*x,
         };
@@ -44,10 +44,10 @@ namespace math {
         };
     }
 
-    void Ikeda::step(vec2f pos) {
+    vec2f Ikeda::step(vec2f pos) const {
         float r2 = sqrt(pos.x()) + sqrt(pos.y());
         float theta = k - p / (1 + r2);
-        state = {
+        return {
             1 + u * (pos.x()*cosf(theta) - pos.y()*sinf(theta)),
             u * (pos.x()*sinf(theta) + pos.y()*cosf(theta))
         };

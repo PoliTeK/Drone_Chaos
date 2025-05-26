@@ -34,6 +34,8 @@ namespace math {
         struct raw_vec {
         public:
             T e[N];
+
+            using Base = T;
             
             constexpr raw_vec() = default;
 
