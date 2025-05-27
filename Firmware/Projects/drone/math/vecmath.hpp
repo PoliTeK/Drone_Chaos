@@ -3,10 +3,12 @@
 #include <cstdint>
 #include <initializer_list>
 #include <type_traits> // std::enable_if
+#include <utility>
 
 namespace math {
 
     constexpr double PI = 3.1415926535897932385;
+    using size_t = std::size_t;
 
     // generic math
 
@@ -63,19 +65,19 @@ namespace math {
             std::enable_if_t<(M >= 1), const T&> x() const { return e[0]; }
 
             template<size_t M = N>
-            std::enable_if_t<(M >= 1), T&> y() { return e[0]; }
+            std::enable_if_t<(M >= 1), T&> y() { return e[1]; }
 
             template<size_t M = N>
             std::enable_if_t<(M >= 2), const T&> y() const { return e[1]; }
 
             template<size_t M = N>
-            std::enable_if_t<(M >= 1), T&> z() { return e[0]; }
+            std::enable_if_t<(M >= 1), T&> z() { return e[2]; }
 
             template<size_t M = N>
             std::enable_if_t<(M >= 3), const T&> z() const { return e[2]; }
 
             template<size_t M = N>
-            std::enable_if_t<(M >= 1), T&> w() { return e[0]; }
+            std::enable_if_t<(M >= 1), T&> w() { return e[3]; }
 
             template<size_t M = N>
             std::enable_if_t<(M >= 4), const T&> w() const { return e[3]; }

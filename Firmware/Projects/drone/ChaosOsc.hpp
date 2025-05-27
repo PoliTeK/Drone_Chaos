@@ -37,10 +37,10 @@ namespace chaosdrone {
             if (_endTick > _startTick)
             {
                 if(timer.GetTick() > _endTick)
-            {
-                model.step(model.state);
-                _startTick = timer.GetTick();
-            }
+                {
+                    model.step(model.state);
+                    _startTick = timer.GetTick();
+                }
             }
             if(_endTick < _startTick)
             {
