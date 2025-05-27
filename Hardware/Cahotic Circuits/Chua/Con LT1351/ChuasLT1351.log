@@ -1,0 +1,83 @@
+Circuit: * C:\users\sapo\Documenti\Politek\Drone_Chaos\Hardware\Cahotic Circuits\Chua\Con LT1351\ChuasLT1351.asc
+
+Direct Newton iteration for .op point succeeded.
+.step x=1000
+.step x=1010
+.step x=1020
+.step x=1030
+.step x=1040
+.step x=1050
+.step x=1060
+.step x=1070
+.step x=1080
+.step x=1090
+.step x=1100
+.step x=1110
+.step x=1120
+.step x=1130
+.step x=1140
+.step x=1150
+.step x=1160
+.step x=1170
+.step x=1180
+.step x=1190
+.step x=1200
+.step x=1210
+.step x=1220
+.step x=1230
+.step x=1240
+.step x=1250
+.step x=1260
+.step x=1270
+.step x=1280
+.step x=1290
+.step x=1300
+.step x=1310
+.step x=1320
+.step x=1330
+.step x=1340
+.step x=1350
+.step x=1360
+.step x=1370
+.step x=1380
+.step x=1390
+.step x=1400
+.step x=1410
+.step x=1420
+.step x=1430
+.step x=1440
+.step x=1450
+.step x=1460
+.step x=1470
+.step x=1480
+.step x=1490
+.step x=1500
+.step x=1510
+.step x=1520
+.step x=1530
+.step x=1540
+.step x=1550
+.step x=1560
+.step x=1570
+.step x=1580
+.step x=1590
+.step x=1600
+
+Date: Tue May 27 16:58:05 2025
+Total elapsed time: 73.105 seconds.
+
+tnom = 27
+temp = 27
+method = modified trap
+totiter = 681
+traniter = 644
+tranpoints = 323
+accept = 323
+rejected = 0
+matrix size = 26
+fillins = 4
+solver = Normal
+Matrix Compiler1: 1.73 KB object code size  0.7/0.3/[0.2]
+Matrix Compiler2: off  [0.3]/0.4/0.5
+
+
