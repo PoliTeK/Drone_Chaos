@@ -65,19 +65,19 @@ namespace math {
             std::enable_if_t<(M >= 1), const T&> x() const { return e[0]; }
 
             template<size_t M = N>
-            std::enable_if_t<(M >= 1), T&> y() { return e[1]; }
+            std::enable_if_t<(M >= 2), T&> y() { return e[1]; }
 
             template<size_t M = N>
             std::enable_if_t<(M >= 2), const T&> y() const { return e[1]; }
 
             template<size_t M = N>
-            std::enable_if_t<(M >= 1), T&> z() { return e[2]; }
+            std::enable_if_t<(M >= 3), T&> z() { return e[2]; }
 
             template<size_t M = N>
             std::enable_if_t<(M >= 3), const T&> z() const { return e[2]; }
 
             template<size_t M = N>
-            std::enable_if_t<(M >= 1), T&> w() { return e[3]; }
+            std::enable_if_t<(M >= 4), T&> w() { return e[3]; }
 
             template<size_t M = N>
             std::enable_if_t<(M >= 4), const T&> w() const { return e[3]; }
