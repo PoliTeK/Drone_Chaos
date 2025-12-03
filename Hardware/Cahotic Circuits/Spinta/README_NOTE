@@ -1,13 +1,15 @@
-Circuito "Spinta" testato da Fabio Saporito ed Alessio Charrier in data 23/05/2025
+Circuito "Spinta" testato da Fabio Saporito in data 05/12/2025
 
 LISTA DEI COMPONENTI:
 
-- 2x doppi op-amp TL082 o affine.
-- 6x resistori da 1 kOhm (o potenziometri da 1K)
-- 1x diodo 1n4007 o similare (due per la variante).
-- 3x condensatori elettrolitici o ceramici da 100uF
+- 2x doppi op-amp LM358 o affine.
+- 4x resistori da 82 k.
+- 2x resistori da 47 k.
+- 2x potenziometri lineari da 100 k.
+- 1x diodo 1n4007.
+- 3x condensatori elettrolitici o ceramici da 200uF
 
 Descrizione:
-Il circuito presenta quattro differenti uscite indipendenti. E' facilmente controllabile agendo su uno dei potenziometri che si desidera posizionare al posto delle resistente. Prove sul circuito fisico hanno dato come risultato che lo stesso continua a risuonare per valori compresi tra 100 Ohm e 1K circa. Il circuito è molto facile da controllare e difficilmente va in smorzamento.
-Il consumo è pari a circa 150 mW e delle sole alimentazioni per gli opamp (+/- 15V).
+Il circuito presenta tre differenti uscite. E' facilmente controllabile agendo sui potenziometri posizionati. circuito è molto facile da controllare e difficilmente va in smorzamento.
+Il consumo è pari a circa 150 mW e delle sole alimentazioni per gli opamp (+/- 9V).
 
