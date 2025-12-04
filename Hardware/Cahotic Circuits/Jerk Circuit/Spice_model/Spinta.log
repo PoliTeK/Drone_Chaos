@@ -1,0 +1,46 @@
+LTspice 24.1.10 for Windows
+Circuit: E:\POLITEK\Circuito Jerk\Modello Spice\Spinta.net
+Start Time: Tue Dec  2 18:50:58 2025
+solver = Normal
+Maximum thread count: 8
+tnom = 27
+temp = 27
+method = trap
+Per .tran options, skipping operating point for transient analysis.
+.step ra=4000 rb=47000
+.step ra=34000 rb=47000
+.step ra=64000 rb=47000
+.step ra=94000 rb=47000
+.step ra=124000 rb=47000
+.step ra=147000 rb=47000
+.step ra=4000 rb=77000
+.step ra=34000 rb=77000
+.step ra=64000 rb=77000
+.step ra=94000 rb=77000
+.step ra=124000 rb=77000
+.step ra=147000 rb=77000
+.step ra=4000 rb=107000
+.step ra=34000 rb=107000
+.step ra=64000 rb=107000
+.step ra=94000 rb=107000
+.step ra=124000 rb=107000
+.step ra=147000 rb=107000
+.step ra=4000 rb=137000
+.step ra=34000 rb=137000
+.step ra=64000 rb=137000
+.step ra=94000 rb=137000
+.step ra=124000 rb=137000
+.step ra=147000 rb=137000
+.step ra=4000 rb=147000
+.step ra=34000 rb=147000
+.step ra=64000 rb=147000
+.step ra=94000 rb=147000
+.step ra=124000 rb=147000
+.step ra=147000 rb=147000
+Total elapsed time: 15.586 seconds.
+
+Files loaded:
+E:\POLITEK\Circuito Jerk\Modello Spice\Spinta.net
+C:\Users\fsapo\AppData\Local\LTspice\lib\cmp\standard.dio
+C:\Users\fsapo\AppData\Local\LTspice\lib\sub\ADI.lib
+
