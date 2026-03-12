@@ -56,6 +56,8 @@ namespace math {
                 return e[i];
             }
 
+            static constexpr size_t size() { return N; }
+
             // convenience x,y,z,w functions
 
             template<size_t M = N>
@@ -82,13 +84,10 @@ namespace math {
             template<size_t M = N>
             std::enable_if_t<(M >= 4), const T&> w() const { return e[3]; }
         };
-
     };
 
     template<size_t N, class T>
     struct vec : public _internal::raw_vec<N, T> {
-        static constexpr size_t size() { return N; }
-
         constexpr vec() = default;
 
         // Constructor taking exactly N arguments of type T
@@ -184,8 +183,6 @@ namespace math {
 
     template<size_t N, class T>
     struct point : public _internal::raw_vec<N, T> {
-        static constexpr size_t size() { return N; }
-
         constexpr point() = default;
 
         // Constructor taking exactly N arguments of type T
