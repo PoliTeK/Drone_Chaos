@@ -24,11 +24,11 @@ end
 % Define parameters for the Lorenz attractor
 start_point = [1; 0; 1]; % Initial conditions
 end_time = 1000; % End time for the simulation
-alpha = 1.9; % Model parameter (1.22 (very chaotic) < alpha < 3.5 (study behavior past this value))
+alpha = 3; % Model parameter (1.22 (very chaotic) < alpha < 3.5 (study behavior past this value))
 
 % Call the lorenz_attractor function
 trajectory = halvorsen_attractor(start_point, end_time, alpha);
-trajectory.states(:,1) = highpass(trajectory.states(:,1), 0.01);
+% trajectory.states(:,1) = highpass(trajectory.states(:,1), 0.01);
 
 %% Plot the obtained trajectory
 figure;
