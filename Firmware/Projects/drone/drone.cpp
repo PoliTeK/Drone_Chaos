@@ -3,6 +3,7 @@
 #include "stm32h7xx_hal.h"
 
 #include "math/models.hpp"
+#include "digipot/mcp4452.hpp"
 
 using namespace daisy;
 using namespace daisysp;
@@ -20,6 +21,8 @@ volatile size_t which_model = 0;
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t block_size);
 void init_spi(DaisySeed &hw);
+void i2c_scan(DaisySeed &hw, I2CHandle &i2c);
+I2CHandle::Result i2c_check_addr(daisy::I2CHandle &i2c_handle, uint8_t addr);
 
 enum AdcChannels {
 	ParamPot = 0,
@@ -56,9 +59,9 @@ int main(void) {
 	// hw.adc.Start();
 
 	// GPIO
-	Switch button;
+	// Switch button;
 	// update_rate is unused...
-	button.Init(seed::D15, 0, Switch::Type::TYPE_MOMENTARY, Switch::Polarity::POLARITY_INVERTED, Switch::PULL_UP);
+	// button.Init(seed::D15, 0, Switch::Type::TYPE_MOMENTARY, Switch::Polarity::POLARITY_INVERTED, Switch::PULL_UP);
 
 	// Other init stuff
 	// TODO: dynamic alloc = bad, but simple enough
@@ -75,26 +78,50 @@ int main(void) {
 	hw.PrintLine("End system init");
 	hw.PrintLine("Selected model: %d", which_model);
 	
-	bool button_state = false;
+	// bool button_state = false;
+
+	I2CHandle i2c_handle;
+	digipot::init(i2c_handle);
+	i2c_scan(hw, i2c_handle);
+
+	size_t counter = 0;
 
 	while(1) {
 		// param_pot = hw.adc.GetFloat(AdcChannels::ParamPot);
 		// freq_pot = hw.adc.GetFloat(AdcChannels::FreqPot);
 
+		/*
 		button.Debounce();
 		if (button.RisingEdge()) {
 			which_model = (which_model + 1) % NUM_MODELS;
 			hw.PrintLine("Selected model: %d", which_model);
 		}
-
+		
 		hw.SetLed(button.Pressed());
+		*/
 
 		// hw.PrintLine("Param: " FLT_FMT3 " -- Freq: " FLT_FMT3, FLT_VAR3(param_pot), FLT_VAR3(freq_pot));
 
 		// float cpu_load = audio_load_meter.GetAvgCpuLoad() * 100.f;
 		// hw.PrintLine("CPU load: " FLT_FMT(2) "%", FLT_VAR(2, cpu_load));
 
-		System::Delay(10);
+		auto result = digipot::MCP4452::set_value(i2c_handle, digipot::MCP4452::Wiper::Wiper0, 256 - counter);
+
+		if (result == I2CHandle::Result::OK) {
+			hw.PrintLine("Set digipot value successfully");
+		} else {
+			hw.PrintLine("Failed to set digipot value");
+		}
+
+		result = i2c_check_addr(i2c_handle, digipot::I2C_ADDRESS);
+		if (result == I2CHandle::Result::OK) {
+			hw.PrintLine("Digipot is responding to I2C address");
+		} else {
+			hw.PrintLine("Digipot is NOT responding to I2C address");
+		}
+
+		counter = (counter + 32) % 256;
+		System::Delay(2000);
 	}
 }
 
@@ -148,13 +175,11 @@ void init_spi(DaisySeed &hw, SpiHandle &spi_handle) {
 	spi_handle.Init(spi_conf);
 }
 
-inline bool i2c_check_addr(daisy::I2CHandle &i2c_handle, uint8_t addr)
+inline I2CHandle::Result i2c_check_addr(daisy::I2CHandle &i2c_handle, uint8_t addr)
 {
 	// provo a fare una trasmissione vuota
 	// nota: il timeout è in ms
-	I2CHandle::Result res = i2c_handle.TransmitBlocking(addr, nullptr, 0, 10);
-
-	return res == I2CHandle::Result::OK;
+	return i2c_handle.TransmitBlocking(addr, nullptr, 0, 10);
 }
 
 // thx vittorio

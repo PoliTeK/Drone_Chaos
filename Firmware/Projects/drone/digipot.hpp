@@ -38,6 +38,6 @@ namespace digipot {
     /// @param wiper Selected wiper.
     /// @param value Value to set the potentiometer to (0-256, 9 bits total).
     /// @return Returns the result of the I2C transmission.
-    I2CHandle::Result set_value(daisy::I2CHandle &i2c, Wiper wiper, uint16_t value);
+    daisy::I2CHandle::Result set_value(daisy::I2CHandle &i2c, Wiper wiper, uint16_t value);
 
 }

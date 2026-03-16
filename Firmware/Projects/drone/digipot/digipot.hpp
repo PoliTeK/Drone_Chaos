@@ -15,7 +15,7 @@ namespace digipot {
     ///
     /// The device uses internal addresses for each wiper, which are sent separately
     /// and are not related to this one.
-    constexpr uint8_t I2C_ADDRESS = 0x0101100;
+    constexpr uint8_t I2C_ADDRESS = 0b0101100;
 
     constexpr uint32_t I2C_TIMEOUT_MS = 10;
 
