@@ -51,21 +51,27 @@ int main(void) {
 	hw.StartAudio(AudioCallback);
 
 	// ADC
-	// AdcChannelConfig adc_config[AdcChannels::NUM_CHANNELS];
-	// adc_config[AdcChannels::ParamPot].InitSingle(seed::A0);
-	// adc_config[AdcChannels::FreqPot].InitSingle(seed::A1);
+	AdcChannelConfig adc_config[AdcChannels::NUM_CHANNELS];
+	adc_config[AdcChannels::ParamPot].InitSingle(seed::A0);
+	adc_config[AdcChannels::FreqPot].InitSingle(seed::A1);
 
-	// hw.adc.Init(adc_config, AdcChannels::NUM_CHANNELS);
-	// hw.adc.Start();
+	hw.adc.Init(adc_config, AdcChannels::NUM_CHANNELS);
+	hw.adc.Start();
 
 	// GPIO
 	// Switch button;
 	// update_rate is unused...
 	// button.Init(seed::D15, 0, Switch::Type::TYPE_MOMENTARY, Switch::Polarity::POLARITY_INVERTED, Switch::PULL_UP);
+	GPIO Yled1, Yled2, Yled3;
+  	Switch button1;
 
+	Yled1.Init(D1, GPIO::Mode::OUTPUT); // controlla pins
+ 	Yled2.Init(D2, GPIO::Mode::OUTPUT);
+  	Yled3.Init(D3, GPIO::Mode::OUTPUT);
+	
 	// Other init stuff
 	// TODO: dynamic alloc = bad, but simple enough
-	models[0] = new math::Rossler;
+	models[0] = new math::Henon;
 	models[1] = new math::Rossler;
 	models[2] = new math::Halvorsen;
 
@@ -87,8 +93,8 @@ int main(void) {
 	size_t counter = 0;
 
 	while(1) {
-		// param_pot = hw.adc.GetFloat(AdcChannels::ParamPot);
-		// freq_pot = hw.adc.GetFloat(AdcChannels::FreqPot);
+		param_pot = hw.adc.GetFloat(AdcChannels::ParamPot);
+		freq_pot = hw.adc.GetFloat(AdcChannels::FreqPot);
 
 		/*
 		button.Debounce();
@@ -104,6 +110,43 @@ int main(void) {
 
 		// float cpu_load = audio_load_meter.GetAvgCpuLoad() * 100.f;
 		// hw.PrintLine("CPU load: " FLT_FMT(2) "%", FLT_VAR(2, cpu_load));
+
+		// button by polling
+		button1.Debounce();
+		if(button1.RisingEdge()){
+            which_model += 1;
+            // Wrap around
+            if(which_model > NUM_MODELS)
+            {
+                which_model = 1;
+            }
+		}
+		// three yellow LEDs
+		switch(which_model){
+			case 1:
+			// spinta
+			Yled1.Write(1);
+			Yled2.Write(0);
+			Yled3.Write(0);
+			break;
+			case 2:
+			// digi 1
+			Yled1.Write(0);
+			Yled2.Write(1);
+			Yled3.Write(0);
+			break;
+			case 3:
+			// digi 2
+			Yled1.Write(0);
+			Yled2.Write(0);
+			Yled3.Write(1);
+			break;
+			default:
+			// nada
+			Yled1.Write(1);
+			Yled2.Write(1);
+			Yled3.Write(1);
+		}
 
 		auto result = digipot::MCP4452::set_value(i2c_handle, digipot::MCP4452::Wiper::Wiper0, 256 - counter);
 
