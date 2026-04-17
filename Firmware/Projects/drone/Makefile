@@ -2,7 +2,7 @@
 TARGET := drone
 
 # Sources
-CPP_SOURCES := drone.cpp math/models.cpp digipot/digipot.cpp digipot/mcp4452.cpp
+CPP_SOURCES := math/models.cpp screen/Display.cpp screen/DisplayTester.cpp
 
 # Library Locations
 LIBDAISY_DIR := ../../libDaisy/
