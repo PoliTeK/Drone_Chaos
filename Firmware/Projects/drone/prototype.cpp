@@ -1,3 +1,7 @@
+/*
+To run this code, build it with 'make prototype'
+*/
+
 #include "daisy_seed.h"
 #include "daisysp.h"
 #include "stm32h7xx_hal.h"
@@ -22,7 +26,6 @@ volatile size_t which_model = 0;
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t block_size);
 void init_spi(DaisySeed &hw);
-I2CHandle::Result i2c_check_addr(daisy::I2CHandle &i2c_handle, uint8_t addr);
 
 enum AdcChannels {
 	DigiKnob = 0,

@@ -2,8 +2,8 @@
 TARGET := drone
 
 # Define CPP_SOURCES as the list of all .cpp files in the current directory and
-# its subdirectories, excluding the 'prototype' directory.
-CPP_SOURCES := $(shell find . -type f -name "*.cpp" ! -path "./prototype/*")
+# its subdirectories, excluding 'prototype.cpp'.
+CPP_SOURCES := $(shell find . -type f -name "*.cpp" ! -name "prototype.cpp")
 
 # Library Locations
 LIBDAISY_DIR := ../../libDaisy/
@@ -14,3 +14,8 @@ CPP_STANDARD := -std=gnu++17
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 include $(SYSTEM_FILES_DIR)/Makefile
+
+# Extra target to build the prototype instead of the main target.
+.PHONY: prototype
+prototype: CPP_SOURCES := $(shell find . -type f -name "*.cpp" ! -name "$(TARGET).cpp")
+prototype: all
