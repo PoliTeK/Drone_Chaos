@@ -2,9 +2,9 @@
 #include "daisysp.h"
 #include "stm32h7xx_hal.h"
 
-#include "math/models.hpp"
-#include "hardware/i2c_utils.hpp"
-#include "hardware/mcp4452.hpp"
+#include "../math/models.hpp"
+#include "../hardware/i2c_utils.hpp"
+#include "../hardware/mcp4452.hpp"
 
 using namespace daisy;
 using namespace daisysp;

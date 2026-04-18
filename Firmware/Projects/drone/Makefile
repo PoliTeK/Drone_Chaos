@@ -1,8 +1,9 @@
 # Project Name
 TARGET := drone
 
-# Sources
-CPP_SOURCES := math/models.cpp screen/Display.cpp screen/DisplayTester.cpp
+# Define CPP_SOURCES as the list of all .cpp files in the current directory and
+# its subdirectories, excluding the 'prototype' directory.
+CPP_SOURCES := $(shell find . -type f -name "*.cpp" ! -path "./prototype/*")
 
 # Library Locations
 LIBDAISY_DIR := ../../libDaisy/
