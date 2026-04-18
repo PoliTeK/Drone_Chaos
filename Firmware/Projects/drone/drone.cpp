@@ -3,7 +3,8 @@
 #include "stm32h7xx_hal.h"
 
 #include "math/models.hpp"
-#include "digipot/mcp4452.hpp"
+#include "hardware/i2c_utils.hpp"
+#include "hardware/mcp4452.hpp"
 
 using namespace daisy;
 using namespace daisysp;
@@ -21,12 +22,11 @@ volatile size_t which_model = 0;
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t block_size);
 void init_spi(DaisySeed &hw);
-void i2c_scan(DaisySeed &hw, I2CHandle &i2c);
 I2CHandle::Result i2c_check_addr(daisy::I2CHandle &i2c_handle, uint8_t addr);
 
 enum AdcChannels {
-	ParamPot = 0,
-	FreqPot,
+	DigiKnob = 0,
+	// FreqPot,
 	NUM_CHANNELS
 };
 
@@ -52,26 +52,25 @@ int main(void) {
 
 	// ADC
 	AdcChannelConfig adc_config[AdcChannels::NUM_CHANNELS];
-	adc_config[AdcChannels::ParamPot].InitSingle(seed::A0);
-	adc_config[AdcChannels::FreqPot].InitSingle(seed::A1);
+	adc_config[AdcChannels::DigiKnob].InitSingle(seed::A0);
+	// adc_config[AdcChannels::FreqPot].InitSingle(seed::A1);
 
 	hw.adc.Init(adc_config, AdcChannels::NUM_CHANNELS);
 	hw.adc.Start();
 
 	// GPIO
-	// Switch button;
+	Switch button;
 	// update_rate is unused...
-	// button.Init(seed::D15, 0, Switch::Type::TYPE_MOMENTARY, Switch::Polarity::POLARITY_INVERTED, Switch::PULL_UP);
 	GPIO Yled1, Yled2, Yled3;
-  	Switch button1;
+	button.Init(seed::D14, 0, Switch::Type::TYPE_MOMENTARY, Switch::Polarity::POLARITY_INVERTED, Switch::PULL_UP);
 
-	Yled1.Init(D1, GPIO::Mode::OUTPUT); // controlla pins
- 	Yled2.Init(D2, GPIO::Mode::OUTPUT);
-  	Yled3.Init(D3, GPIO::Mode::OUTPUT);
+	Yled1.Init(seed::D1, GPIO::Mode::OUTPUT); // controlla pins
+ 	Yled2.Init(seed::D2, GPIO::Mode::OUTPUT);
+  	Yled3.Init(seed::D3, GPIO::Mode::OUTPUT);
 	
 	// Other init stuff
 	// TODO: dynamic alloc = bad, but simple enough
-	models[0] = new math::Henon;
+	models[0] = new math::Lorentz;
 	models[1] = new math::Rossler;
 	models[2] = new math::Halvorsen;
 
@@ -84,27 +83,25 @@ int main(void) {
 	hw.PrintLine("End system init");
 	hw.PrintLine("Selected model: %d", which_model);
 	
-	// bool button_state = false;
-
 	I2CHandle i2c_handle;
 	digipot::init(i2c_handle);
 	i2c_scan(hw, i2c_handle);
 
-	size_t counter = 0;
+	// size_t counter = 0;
 
 	while(1) {
-		param_pot = hw.adc.GetFloat(AdcChannels::ParamPot);
-		freq_pot = hw.adc.GetFloat(AdcChannels::FreqPot);
+		uint16_t adc_result = hw.adc.Get(AdcChannels::DigiKnob);
+		uint8_t digi_knob = (adc_result >> 8) & 0xFF;
+		// freq_pot = hw.adc.GetFloat(AdcChannels::FreqPot);
 
-		/*
 		button.Debounce();
+
 		if (button.RisingEdge()) {
 			which_model = (which_model + 1) % NUM_MODELS;
 			hw.PrintLine("Selected model: %d", which_model);
 		}
 		
 		hw.SetLed(button.Pressed());
-		*/
 
 		// hw.PrintLine("Param: " FLT_FMT3 " -- Freq: " FLT_FMT3, FLT_VAR3(param_pot), FLT_VAR3(freq_pot));
 
@@ -112,8 +109,8 @@ int main(void) {
 		// hw.PrintLine("CPU load: " FLT_FMT(2) "%", FLT_VAR(2, cpu_load));
 
 		// button by polling
-		button1.Debounce();
-		if(button1.RisingEdge()){
+		button.Debounce();
+		if(button.RisingEdge()){
             which_model += 1;
             // Wrap around
             if(which_model > NUM_MODELS)
@@ -148,26 +145,25 @@ int main(void) {
 			Yled3.Write(1);
 		}
 
-		auto result = digipot::MCP4452::set_value(i2c_handle, digipot::MCP4452::Wiper::Wiper0, 256 - counter);
+		auto result = digipot::MCP4452::set_value(i2c_handle, digipot::MCP4452::Wiper::Wiper0, digi_knob);
 
 		if (result == I2CHandle::Result::OK) {
-			hw.PrintLine("Set digipot value successfully");
+			hw.PrintLine("Set digipot value (%d) successfully", digi_knob);
 		} else {
-			hw.PrintLine("Failed to set digipot value");
+			hw.PrintLine("Failed to set digipot value (%d)", digi_knob);
 		}
 
-		result = i2c_check_addr(i2c_handle, digipot::I2C_ADDRESS);
-		if (result == I2CHandle::Result::OK) {
-			hw.PrintLine("Digipot is responding to I2C address");
-		} else {
-			hw.PrintLine("Digipot is NOT responding to I2C address");
-		}
+		// if (result == I2CHandle::Result::OK) {
+			// hw.PrintLine("Digipot is responding to I2C address");
+		// } else {
+			// hw.PrintLine("Digipot is NOT responding to I2C address");
+		// }
 
-		counter = (counter + 32) % 256;
-		System::Delay(2000);
+		System::Delay(10);
 	}
 }
 
+// TODO: move to low-freq pins
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t block_size) {
 	using namespace math;
 
@@ -216,26 +212,4 @@ void init_spi(DaisySeed &hw, SpiHandle &spi_handle) {
 	spi_conf.pin_config.nss = seed::D7; // unused (controlled via software)
 
 	spi_handle.Init(spi_conf);
-}
-
-inline I2CHandle::Result i2c_check_addr(daisy::I2CHandle &i2c_handle, uint8_t addr)
-{
-	// provo a fare una trasmissione vuota
-	// nota: il timeout è in ms
-	return i2c_handle.TransmitBlocking(addr, nullptr, 0, 10);
-}
-
-// thx vittorio
-void i2c_scan(DaisySeed &hw, I2CHandle &i2c)
-{
-    for(uint8_t addr = 1; addr < 127; addr++)
-    {
-        // provo a fare una trasmissione vuota
-        I2CHandle::Result res = i2c.TransmitBlocking(addr, nullptr, 0, 10);
-
-        if(res == I2CHandle::Result::OK)
-        {
-            hw.PrintLine("Found I2C device at 0x%02X\r\n", addr);
-        }
-    }
 }
