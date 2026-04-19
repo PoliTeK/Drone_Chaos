@@ -6,9 +6,9 @@ To run this code, build it with 'make prototype'
 #include "daisysp.h"
 #include "stm32h7xx_hal.h"
 
-#include "../math/models.hpp"
-#include "../hardware/i2c_utils.hpp"
-#include "../hardware/mcp4452.hpp"
+#include "math/models.hpp"
+#include "hardware/i2c_utils.hpp"
+#include "hardware/digipot.hpp"
 
 using namespace daisy;
 using namespace daisysp;
@@ -148,7 +148,7 @@ int main(void) {
 			Yled3.Write(1);
 		}
 
-		auto result = digipot::MCP4452::set_value(i2c_handle, digipot::MCP4452::Wiper::Wiper0, digi_knob);
+		auto result = digipot::set_value(i2c_handle, digipot::Wiper::Wiper0, digi_knob);
 
 		if (result == I2CHandle::Result::OK) {
 			hw.PrintLine("Set digipot value (%d) successfully", digi_knob);
