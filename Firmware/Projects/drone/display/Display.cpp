@@ -1,4 +1,4 @@
-#include "Display.h"
+#include "Display.hpp"
 
 void SSD130X::InitDisplay(){
     SSD130xI2CTransport::Config display_transport_config;
