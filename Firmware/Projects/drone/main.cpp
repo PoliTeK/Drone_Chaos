@@ -72,7 +72,7 @@ AdcHandle adc;
 /// TIM3: 16-bit timer
 TimerHandle input_timer;
 /// TIM4: 16-bit timer
-TimerHandle output_timer;
+TimerHandle display_timer;
 
 
 /* --- Main code -------------------------------------------------------------------------------- */
@@ -157,13 +157,13 @@ void init_timers(KhaosInput &inputs) {
     config.dir = TimerHandle::Config::CounterDir::UP;
     config.enable_irq = true; // needed for user callback
     config.periph = TimerHandle::Config::Peripheral::TIM_4;
-    output_timer.Init(config);
-    output_timer.SetCallback(output_dma_callback);
-    output_timer.SetPrescaler(3999); // avoids overflow since the timer is 16-bit
-    output_timer.SetPeriod(input_timer.GetFreq() / display_refresh_rate);
+    display_timer.Init(config);
+    display_timer.SetCallback(display_timer_callback);
+    display_timer.SetPrescaler(3999); // avoids overflow since the timer is 16-bit
+    display_timer.SetPeriod(input_timer.GetFreq() / display_refresh_rate);
 
     input_timer.Start();
-    output_timer.Start();
+    display_timer.Start();
 }
 
 void input_timer_callback(void *data) {
@@ -183,6 +183,10 @@ void input_timer_callback(void *data) {
     // TODO: do something with this data...
 }
 
-void output_dma_callback(void *data) {
+void output_dma_callback(uint16_t **out, size_t size) {
+    // TODO: ...
+}
+
+void display_timer_callback(void *data) {
     // TODO: ...
 }
