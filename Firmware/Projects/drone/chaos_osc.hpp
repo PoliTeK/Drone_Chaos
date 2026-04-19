@@ -20,25 +20,28 @@ private:
         float new_dt = freq_multiplier / sampling_frequency;
 
         if (new_dt <= max_dt) {
-            model.dt = new_dt;
+            model->dt = new_dt;
             dt_overshoot = 0;
         } else {
-            model.dt = max_dt;
+            model->dt = max_dt;
             dt_overshoot = (new_dt / max_dt);
         }
     }
 
 public:
     using Model = math::ContinuousModel<math::vec<N, float>>;
-    Model model;
-    vec<N, float> state;
+    Model *model;
+    math::vec<N, float> state;
 
-    ChaosOsc(Model model, vec<N, float> initial_state, float sampling_frequency, float freq_multiplier, float max_dt = math::DT_DEFAULT)
-        : model(model), state(initial_state),
-        sampling_frequency(sampling_frequency),
-        freq_multiplier(freq_multiplier), max_dt(max_dt)
+    ChaosOsc()
+    {}
+
+    ChaosOsc(Model *model, math::vec<N, float> initial_state, float sampling_frequency, float freq_multiplier, float max_dt = math::DT_DEFAULT)
+        : sampling_frequency(sampling_frequency),
+        freq_multiplier(freq_multiplier), max_dt(max_dt),
+        model(model), state(initial_state)
     {
-        update_dt()
+        update_dt();
     }
 
     void set_sampling_frequency(float new_sampling_frequency) {
@@ -63,22 +66,22 @@ public:
         update_dt();
     }
     
-    vec<N, float> step() {
+    math::vec<N, float> step() {
         if (dt_overshoot == 0) {
-            state = model.step(state);
+            state = model->step(state);
         } else {
             size_t overshoot = static_cast<size_t>(truncf(dt_overshoot));
 
             // step 'overshoot' times using max_dt
             for (size_t k = overshoot; k > 0; k--) {
-                state = model.step(state);
+                state = model->step(state);
             }
 
             // do a single step with the remaining dt
             float remainder_dt = dt_overshoot - overshoot * max_dt;
-            model.dt = remainder_dt;
-            state = model.step(state);
-            model.dt = max_dt;
+            model->dt = remainder_dt;
+            state = model->step(state);
+            model->dt = max_dt;
         }
 
         return state;

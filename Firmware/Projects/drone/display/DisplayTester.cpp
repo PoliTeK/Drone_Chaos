@@ -1,11 +1,9 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
-#include "Display.h"
+#include "Display.hpp"
 #include "../math/models.hpp"
-#include "../ChaosOsc.hpp"
 
 using namespace daisy;
-using namespace chaosdrone;
 
 DaisySeed hw;
 SSD130X display;
@@ -17,8 +15,8 @@ math::vec3f states[NUM_MODELS];
 
 daisy::TimerHandle timer;
 
-
-int main(void)
+// Call from prototype.cpp/main() if needed
+int DisplayTester_main(void)
 {
     uint8_t out[2];
     hw.Configure();

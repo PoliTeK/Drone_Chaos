@@ -37,6 +37,7 @@ struct KhaosInput {
 struct KhaosOutput {
     /// @brief Buffers for digital model samples
     std::array<uint16_t, 64> buf1, buf2;
+    DacHandle dac;
 
     ChaosOsc<3> rossler;
 
@@ -55,7 +56,7 @@ void init_outputs();
 void init_timers();
 void input_timer_callback(void *data);
 void output_dma_callback(uint16_t **out, size_t size);
-// void display_refresh_callback(void *data);
+void display_refresh_callback(void *data);
 
 /// @brief Initialized chaotic models with default parameters
 void init_chaotic_models();
@@ -63,6 +64,7 @@ void init_chaotic_models();
 
 /* --- Configuration ---------------------------------------------------------------------------- */
 constexpr uint32_t input_refresh_rate = 100; // per second
+constexpr uint32_t output_sample_rate = 100; // per second
 constexpr uint32_t display_refresh_rate = 60; // per second
 
 
@@ -94,8 +96,22 @@ int main(void) {
     init_timers();
 
     I2CHandle digipot_i2c;
-    if (digipot::init(digipot_i2c) == I2CHandle::Result::ERR) {
+    if (digipot::init(digipot_i2c) != I2CHandle::Result::OK) {
         good_init = false;
+        hw.PrintLine("[Khaos] Could not find the I2C digipot");
+    }
+
+    // End initialization
+
+    // signal bad init
+    if (!good_init) {
+        hw.SetLed(true); 
+        hw.PrintLine("[Khaos] Something went wrong during the initialization");
+
+        output.dac.Stop();
+        display_timer.DeInit();
+        input_timer.DeInit();
+        hw.DeInit();
     }
 
     // Tasks:
@@ -126,22 +142,23 @@ void KhaosInput::init() {
 void KhaosOutput::init() {
     init_chaotic_models();
 
-    DacHandle dac;
     DacHandle::Config config;
     config.chn = DacHandle::Channel::BOTH;
-    config.buff_state = DacHandle::BufferState::ENABLED;
+    config.buff_state = DacHandle::BufferState::DISABLED; // TODO: enable?
     config.bitdepth = DacHandle::BitDepth::BITS_12;
     config.mode = DacHandle::Mode::DMA;
+    config.target_samplerate = output_sample_rate;
 
     dac.Init(config);
     dac.Start(buf1.data(), buf2.data(), buf1.size(), output_dma_callback);
 }
 
 void init_chaotic_models() {
-    // TODO: ...
+    static math::Rossler rossler;
+    output.rossler = ChaosOsc<3>(&rossler, {1.0, 1.0, 1.0}, 1.0, 1.0);
 }
 
-void init_timers(KhaosInput &inputs) {
+void init_timers() {
     TimerHandle::Config config;
 
     /* Input management timer */
@@ -158,7 +175,7 @@ void init_timers(KhaosInput &inputs) {
     config.enable_irq = true; // needed for user callback
     config.periph = TimerHandle::Config::Peripheral::TIM_4;
     display_timer.Init(config);
-    display_timer.SetCallback(display_timer_callback);
+    display_timer.SetCallback(display_refresh_callback);
     display_timer.SetPrescaler(3999); // avoids overflow since the timer is 16-bit
     display_timer.SetPeriod(input_timer.GetFreq() / display_refresh_rate);
 
@@ -185,8 +202,13 @@ void input_timer_callback(void *data) {
 
 void output_dma_callback(uint16_t **out, size_t size) {
     // TODO: ...
+    for (size_t i = 0; i < size; i++) {
+        math::vec3f state = output.rossler.step();
+        out[0][i] = state.x();
+        out[1][i] = state.y();
+    }
 }
 
-void display_timer_callback(void *data) {
+void display_refresh_callback(void *data) {
     // TODO: ...
 }
