@@ -36,7 +36,7 @@ constexpr size_t OUTPUT_BUFFER_SIZE = 128;
 
 /// @brief Sets how many 'ticks' cover the full range.
 /// Controls the resolution for encoder-controlled parameters.
-constexpr uint16_t ROTARY_ENCODER_SWING = 32;
+constexpr uint16_t ROTARY_ENCODER_RESOLUTION = 32;
 constexpr size_t PARAM_RESOLUTION = 1024;
 
 
@@ -227,7 +227,7 @@ void KhaosOutput::init() {
 KhaosInputData::KhaosInputData() {
     // Initialize each encoder value at half range
     for (size_t i = 0; i < encoder_values.size(); i++) {
-        encoder_values[i] = ROTARY_ENCODER_SWING / 2;
+        encoder_values[i] = PARAM_RESOLUTION / 2;
     }
 }
 
@@ -262,7 +262,7 @@ void input_timer_callback(void *data) {
         int increment = input.encoders[i].Increment();
 
         int new_value = (int)local_data.encoder_values[i] +
-            increment * ((1 << 16) / ROTARY_ENCODER_SWING);
+            increment * (PARAM_RESOLUTION / ROTARY_ENCODER_RESOLUTION);
 
         constexpr uint16_t max_value = std::numeric_limits<uint16_t>::max();
 
@@ -275,9 +275,11 @@ void input_timer_callback(void *data) {
             local_data.encoder_values[i] = static_cast<uint16_t>(new_value);
         }
 
-        // Toggle switch data on falling edge
-        local_data.switches[i] = input.encoders[i].FallingEdge() ?
-            (!local_data.switches[i]) : local_data.switches[i];
+        // Gather switch data
+        // TODO: change to FallingEdge; do not save switch data directly,
+        // (falling edges may be lost due to how TripleBuffer works),
+        // but rather select here which chaotic model to use
+        local_data.switches[i] = input.encoders[i].Pressed();
     }
 
     /* Control Voltages */
