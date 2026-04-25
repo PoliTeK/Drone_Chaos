@@ -16,40 +16,49 @@ public:
         friend class TripleBuffer<T>;
 
     private:
-        TripleBuffer &_buf;
-        Writer(TripleBuffer &buf) : _buf(buf) {}
+        TripleBuffer *_buf;
+        Writer(TripleBuffer &buf) : _buf(&buf) {}
 
     public:
         Writer(Writer &) = delete;
-        Writer(Writer &&that) = delete;
+
+        Writer(Writer &&that) {
+            _buf = that._buf;
+            that._buf = nullptr;
+        }
+
+        Writer& operator=(Writer that) {
+            std::swap(*this, that)
+        }
 
         ~Writer() {
-            _buf._has_writer.store(false, std::memory_order_release);
+            if (_buf)
+                _buf->_has_writer.store(false, std::memory_order_release);
         }
 
         T &data() {
             // exploits the fact that the reader will only swap the last two elements,
             // leaving the first intact
-            auto perm = _buf._perm.load(std::memory_order_acquire);
+            auto perm = _buf->_perm.load(std::memory_order_acquire);
 
             switch (perm) {
             case TripleBuffer::_Permutation::P123:
             case TripleBuffer::_Permutation::P132:
-                return _buf._data1;
+                return _buf->_data1;
             case TripleBuffer::_Permutation::P213:
             case TripleBuffer::_Permutation::P231:
-                return _buf._data2;
+                return _buf->_data2;
             // case TripleBuffer::_Permutation::P312:
             // case TripleBuffer::_Permutation::P321:
             default:
-                return _buf._data3;
+                return _buf->_data3;
             }
         }
 
         const T &data() const { return const_cast<Writer *>(this)->data(); }
 
         void swap() {
-            _Permutation current = _buf._perm.load(std::memory_order_acquire);
+            _Permutation current = _buf->_perm.load(std::memory_order_acquire);
             _Permutation desired;
 
             do {
@@ -73,14 +82,14 @@ public:
                     desired = _Permutation::P231;
                     break;
                 }
-            } while (!_buf._perm.compare_exchange_weak(current, desired,
+            } while (!_buf->_perm.compare_exchange_weak(current, desired,
                 std::memory_order_release,
                 std::memory_order_acquire));
 
             // signal to the reader that the middle data is ready
             // release: guarantees that on acquiring _middle_ready, the reader will
             // also see the updated permutation
-            _buf._middle_ready.store(true, std::memory_order_release);
+            _buf->_middle_ready.store(true, std::memory_order_release);
         }
     };
 
@@ -88,43 +97,52 @@ public:
         friend class TripleBuffer<T>;
 
     private:
-        TripleBuffer &_buf;
-        Reader(TripleBuffer &buf) : _buf(buf) {}
+        TripleBuffer *_buf;
+        Reader(TripleBuffer &buf) : _buf(&buf) {}
 
     public:
         Reader(Reader &) = delete;
-        Reader(Reader &&that) = delete;
+
+        Reader(Reader &&that) {
+            _buf = that._buf;
+            that._buf = nullptr;
+        }
+
+        Reader& operator=(Reader that) {
+            std::swap(*this, that);
+        }
 
         ~Reader() {
-            _buf._has_reader.store(false, std::memory_order_release);
+            if (_buf)
+                _buf->_has_reader.store(false, std::memory_order_release);
         }
 
         const T &data() {
             // exploits the fact that the writer will only swap the first two
             // elements, leaving the last intact
-            auto perm = _buf._perm.load(std::memory_order_acquire);
+            auto perm = _buf->_perm.load(std::memory_order_acquire);
 
             switch (perm) {
             case TripleBuffer::_Permutation::P231:
             case TripleBuffer::_Permutation::P321:
-                return _buf._data1;
+                return _buf->_data1;
             case TripleBuffer::_Permutation::P132:
             case TripleBuffer::_Permutation::P312:
-                return _buf._data2;
+                return _buf->_data2;
             // case TripleBuffer::_Permutation::P123:
             // case TripleBuffer::_Permutation::P213:
             default:
-                return _buf._data3;
+                return _buf->_data3;
             }
         }
 
         bool try_swap() {
             bool expected_ready = true;
 
-            if (_buf._middle_ready.compare_exchange_strong(
+            if (_buf->_middle_ready.compare_exchange_strong(
                             expected_ready, false, std::memory_order_acq_rel,
                             std::memory_order_relaxed)) {
-                _Permutation current = _buf._perm.load(std::memory_order_acquire);
+                _Permutation current = _buf->_perm.load(std::memory_order_acquire);
                 _Permutation desired;
                 do {
                     switch (current) {
@@ -147,7 +165,7 @@ public:
                         desired = _Permutation::P312;
                         break;
                     }
-                } while (!_buf._perm.compare_exchange_weak(current, desired,
+                } while (!_buf->_perm.compare_exchange_weak(current, desired,
                     std::memory_order_release,
                     std::memory_order_acquire));
                 return true;
@@ -157,13 +175,12 @@ public:
         }
     };
 
+    TripleBuffer() : _data1(), _data2(), _data3() {}
+
     TripleBuffer(const T &data) : _data1(data), _data2(data), _data3(data) {}
 
     TripleBuffer(const T &data_wr, const T &data_rd)
         : _data1(data_wr), _data2(), _data3(data_rd) {}
-
-    TripleBuffer(T &&data)
-        : _data1(std::forward(data)), _data2(data), _data3(data) {}
 
     std::optional<Writer> get_writer() {
         bool expected = false;
