@@ -23,7 +23,7 @@ int DisplayTester_main(void)
     hw.Init();
 
     display.InitDisplay();
-    char coords[2][8];
+    char coords[2][12];
     dcblock.Init(1);
 
     math::Halvorsen model;
