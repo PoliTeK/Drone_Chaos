@@ -9,7 +9,7 @@ CPP_SOURCES := $(shell find . -type f -name "*.cpp" ! -name "prototype.cpp")
 LIBDAISY_DIR := ../../libDaisy/
 DAISYSP_DIR := ../../DaisySP/
 
-CPP_STANDARD := -std=gnu++20
+CPP_STANDARD := -std=gnu++17
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
