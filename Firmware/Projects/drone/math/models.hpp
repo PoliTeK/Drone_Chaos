@@ -5,8 +5,8 @@
 #include "vecmath.hpp"
 
 namespace math {
-    /** Default integration step */
-    constexpr float DT_DEFAULT = 0.01;
+    /** Default integration step used by continuous models */
+    constexpr float DEFAULT_DT = 0.01f;
 
     /**
      * @brief Runge-Kutta 4 implementation for N-valued float vectors.
@@ -24,25 +24,32 @@ namespace math {
     }
 
     /**
-     * @brief Chaotic model interface
-     * Both discrete and continuous models extend this class, providing
-     * an implementation for `step()`.
+     * @brief Discrete chaotic model interface
+     * Discrete models extend this class, providing an implementation for `step()`.
      * 
      * @tparam T type of the internal state (e.g. `vec<3, float>`, `vec<2, double>`, etc.);
      * T must provide a `constexpr size()` for the default implementation of `step()` and a
      * `T::Base` type (the underlying component type).
      */
     template<class T>
-    class ChaoticModel {
+    class DiscreteModel {
     public:
-        virtual ~ChaoticModel() {};
+        using StateType = T;
+
+        virtual ~DiscreteModel() {};
 
         /**
-         * @brief Advances the system by a time step.
-         * 
-         * For both continuous and discrete models, `step()` computes the next state.
+         * @brief Advances the system by one iteration.
+         * @return the next state after one iteration
          */
         virtual T step(T state) const = 0;
+
+        T step(T state, size_t iterations) {
+            for (size_t i = 0; i < iterations; i++) {
+                state = step(state);
+            }
+            return state;
+        }
     };
 
     /**
@@ -57,10 +64,10 @@ namespace math {
      * `T::Base` type (the underlying component type).
      */
     template<class T>
-    class ContinuousModel : public ChaoticModel<T> {
+    class ContinuousModel {
     public:
-        /** Time step used for integration */
-        typename T::Base dt = DT_DEFAULT;
+        using StateType = T;
+        using Time = T::Base;
 
         /**
          * @brief Calculates the gradient of the state vector at a point.
@@ -73,12 +80,27 @@ namespace math {
         /**
          * @brief Integrates `gradient()` using Runge-Kutta 4 by default
          */
-        virtual T step(T state) const override {
+        virtual T step(T state, Time dt) const override {
             auto grad = [this](T state) {
                 return this->gradient(state);
             };
 
             return rk4<T::size()>(state, grad, dt);
+        }
+    };
+
+    template<class M>
+    class DiscretizedModel : public DiscreteModel<typename M::StateType> {
+    public:
+        using StateType = M::StateType;
+        using Time = M::StateType::Base;
+
+        M model;
+        Time dt;
+
+        // Calls the underlying continuous model with a certain dt
+        virtual StateType step(StateType state) const override {
+            return model.step(state, dt);
         }
     };
 
@@ -88,7 +110,7 @@ namespace math {
      * Henon oscillator (discrete, 2D)
      * Useful initial conditions: (x0, y0) = (0.1, 0.3)
      */
-    class Henon : public ChaoticModel<vec2f>
+    class Henon : public DiscreteModel<vec2f>
     {
     public:
         float a = 1.14;
@@ -97,7 +119,7 @@ namespace math {
         vec2f step(vec2f state) const override;
     };
 
-    class Ikeda : public ChaoticModel<vec2f>
+    class Ikeda : public DiscreteModel<vec2f>
     {
     public:
         float u = 0.9;
